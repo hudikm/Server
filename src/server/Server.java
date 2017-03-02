@@ -5,6 +5,7 @@
  */
 package server;
 
+import com.sun.corba.se.spi.orbutil.threadpool.ThreadPool;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,34 +21,37 @@ import java.util.logging.Logger;
  * @author hudik1
  */
 public class Server {
+
     static Logger logger = Logger.getLogger("Server");
-    private static int portNum=100;
+    private static int portNum = 100;
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        logger.log(Level.INFO,"Start server");
+        logger.log(Level.INFO, "Start server");
         try {
             ServerSocket serverSocket = new ServerSocket(portNum);
-            Socket clientSocket = serverSocket.accept();
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-            
-            logger.log(Level.INFO, String.valueOf(clientSocket.getPort()));
-            
-            String newLine;
-            while ((newLine = in.readLine()) != null) {
-                System.out.println(newLine);
-                out.println("Echo:" + newLine);
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                new Thread(new ConnectionHandler(clientSocket)).start();
             }
-            
-            
-            
+
+//            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+//            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+//            
+//            logger.log(Level.INFO, String.valueOf(clientSocket.getPort()));
+//            
+//            String newLine;
+//            while ((newLine = in.readLine()) != null) {
+//                System.out.println(newLine);
+//                out.println("Echo:" + newLine);
+//            }
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
-    
+
 }
